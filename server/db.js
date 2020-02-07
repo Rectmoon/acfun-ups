@@ -54,9 +54,8 @@ async function getAllCreators() {
 async function insertCreator(name, avatar, acfunUrl) {
   const connection = await getConnection()
   const creator = new Creator(name, avatar, acfunUrl)
-  const creatorRepo = connection.getRepository(Creator)
+  const creatorRepo = await connection.getRepository(Creator)
   const res = await creatorRepo.save(creator)
-  console.log('saved', res)
   const allCreators = await creatorRepo.find()
   connection.close()
   return allCreators
