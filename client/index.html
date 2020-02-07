@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+
+    <style>
+      .container {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-around;
+      }
+
+      #acfunUrl {
+        line-height: 32px;
+        border: 1px solid #ccc;
+        border-right: 0;
+        padding: 0 6px;
+        outline: none;
+      }
+
+      button[type='submit'] {
+        line-height: 32px;
+        outline: none;
+        border: 1px solid #ccc;
+        border-left: 0;
+        cursor: pointer;
+      }
+
+      .card {
+        margin: 5px 0;
+        padding: 20px;
+        background-color: indigo;
+        border: 1px solid #ccc;
+      }
+
+      .card img {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Let's go</h1>
+    <h4>Add a new creator</h4>
+    <input type="text" placeholder="paste youtube url" id="acfunUrl" /><button type="submit" onclick="submitChannel()">
+      submit
+    </button>
+
+    <div class="container"></div>
+
+    <script>
+      function fetchCreators() {
+        return fetch('http://localhost:3000/creators')
+          .then(res => res.json())
+          .catch(e => console.error(e))
+      }
+
+      function createCreator(data) {
+        return fetch('http://localhost:3000/creators', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+          .then(res => res.json())
+          .catch(e => console.error(e))
+      }
+
+      async function submitChannel() {
+        const acfunUrl = document.querySelector('#acfunUrl').value
+        const res = await createCreator({ acfunUrl })
+        acfunUrl.value = ''
+        init()
+      }
+
+      function newEl(type, attrs = {}) {
+        const el = document.createElement(type)
+        Object.entries(attrs).forEach(([attr, value]) => {
+          if (attr === 'innerText') el.innerText = value
+          else el.setAttribute(attr, value)
+        })
+        return el
+      }
+
+      async function init() {
+        const container = document.querySelector('.container')
+        container.innerHTML = ''
+        const creators = await fetchCreators()
+        creators.forEach(({ name, avatar }) => {
+          const card = newEl('div', { class: 'card' })
+          const title = newEl('h4', { innerText: name })
+          const img = newEl('img', { src: avatar })
+          card.appendChild(title)
+          card.appendChild(img)
+          container.appendChild(card)
+        })
+      }
+
+      init()
+    </script>
+  </body>
+</html>
